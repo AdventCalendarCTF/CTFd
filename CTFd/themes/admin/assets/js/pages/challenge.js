@@ -385,14 +385,18 @@ $(() => {
             })
             .then(function(response) {
               if (response.success) {
-                $(".challenge-state").text(response.data.state);
-                switch (response.data.state) {
-                  case "visible":
+                state = response.data.state;
+                if (state == "schedule") {
+                  state += ' ' + response.data.start_date;
+                }
+                $(".challenge-state").text(state);
+                switch (response.data.user_visible) {
+                  case true:
                     $(".challenge-state")
                       .removeClass("badge-danger")
                       .addClass("badge-success");
                     break;
-                  case "hidden":
+                  case false:
                     $(".challenge-state")
                       .removeClass("badge-success")
                       .addClass("badge-danger");

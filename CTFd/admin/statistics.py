@@ -1,4 +1,5 @@
 from flask import render_template
+from sqlalchemy.sql import and_, or_
 
 from CTFd.admin import admin
 from CTFd.models import Challenges, Fails, Solves, Teams, Tracking, Users, db
@@ -6,6 +7,7 @@ from CTFd.utils.decorators import admins_only
 from CTFd.utils.modes import get_model
 from CTFd.utils.updates import update_check
 
+import datetime
 
 @admin.route("/admin/statistics", methods=["GET"])
 @admins_only
@@ -13,6 +15,8 @@ def statistics():
     update_check()
 
     Model = get_model()
+
+    now = datetime.datetime.now()
 
     teams_registered = Teams.query.count()
     users_registered = Users.query.count()
@@ -33,7 +37,7 @@ def statistics():
 
     total_points = (
         Challenges.query.with_entities(db.func.sum(Challenges.value).label("sum"))
-        .filter_by(state="visible")
+        .filter(or_(Challenges.state == "visible", and_(Challenges.state == "schedule", Challenges.start_date < now )))
         .first()
         .sum
     ) or 0

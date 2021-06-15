@@ -1,12 +1,13 @@
 from flask_restx import Resource
 from sqlalchemy import func
-from sqlalchemy.sql import and_
+from sqlalchemy.sql import and_, or_
 
 from CTFd.api.v1.statistics import statistics_namespace
 from CTFd.models import Challenges, Solves, db
 from CTFd.utils.decorators import admins_only
 from CTFd.utils.modes import get_model
 
+import datetime
 
 @statistics_namespace.route("/challenges/<column>")
 class ChallengePropertyCounts(Resource):
@@ -29,9 +30,10 @@ class ChallengePropertyCounts(Resource):
 class ChallengeSolveStatistics(Resource):
     @admins_only
     def get(self):
+        now = datetime.datetime.now()
         chals = (
             Challenges.query.filter(
-                and_(Challenges.state != "hidden", Challenges.state != "locked")
+                or_(Challenges.state == "visible", and_(Challenges.state == "schedule", Challenges.start_date < now ))
             )
             .order_by(Challenges.value)
             .all()

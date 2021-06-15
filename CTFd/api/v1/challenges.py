@@ -4,7 +4,7 @@ from typing import List
 from flask import abort, render_template, request, url_for
 from flask_restx import Namespace, Resource
 from sqlalchemy import func as sa_func
-from sqlalchemy.sql import and_, false, true
+from sqlalchemy.sql import and_, false, true, or_
 
 from CTFd.api.v1.helpers.request import validate_args
 from CTFd.api.v1.helpers.schemas import sqlalchemy_to_pydantic
@@ -215,8 +215,9 @@ class ChallengeList(Resource):
         chal_q = Challenges.query
         # Admins can see hidden and locked challenges in the admin view
         if admin_view is False:
+            now = datetime.datetime.now()
             chal_q = chal_q.filter(
-                and_(Challenges.state != "hidden", Challenges.state != "locked")
+                or_(Challenges.state == "visible", and_(Challenges.state == "schedule", Challenges.start_date < now ))
             )
         chal_q = (
             chal_q.filter_by(**query_args)
@@ -350,9 +351,10 @@ class Challenge(Resource):
         if is_admin():
             chal = Challenges.query.filter(Challenges.id == challenge_id).first_or_404()
         else:
+            now = datetime.datetime.now()
             chal = Challenges.query.filter(
                 Challenges.id == challenge_id,
-                and_(Challenges.state != "hidden", Challenges.state != "locked"),
+                or_(Challenges.state == "visible", and_(Challenges.state == "schedule", Challenges.start_date < now )),
             ).first_or_404()
 
         try:
@@ -593,7 +595,8 @@ class ChallengeAttempt(Resource):
 
         challenge = Challenges.query.filter_by(id=challenge_id).first_or_404()
 
-        if challenge.state == "hidden":
+        now = datetime.datetime.now()
+        if challenge.state == "hidden" or (challenge.state == "schedule" and challenge.start_date > now):
             abort(404)
 
         if challenge.state == "locked":
@@ -759,7 +762,7 @@ class ChallengeSolves(Resource):
 
         # TODO: Need a generic challenge visibility call.
         # However, it should be stated that a solve on a gated challenge is not considered private.
-        if challenge.state == "hidden" and is_admin() is False:
+        if not challenge.user_visible and is_admin() is False:
             abort(404)
 
         Model = get_model()

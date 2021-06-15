@@ -121,6 +121,11 @@ class Challenges(db.Model):
     }
 
     @property
+    def user_visible(self):
+        # False if state == hidden, locked, or schedule in the future.
+        return self.state == 'visible' or self.state == 'schedule' and self.start_date < datetime.datetime.now()
+
+    @property
     def html(self):
         from CTFd.utils.config.pages import build_markdown
         from CTFd.utils.helpers import markup
