@@ -61,6 +61,8 @@ class BaseChallenge(object):
             "state": challenge.state,
             "max_attempts": challenge.max_attempts,
             "type": challenge.type,
+            "start_date": str(challenge.start_date),
+            "user_visible": challenge.user_visible,
             "type_data": {
                 "id": cls.id,
                 "name": cls.name,

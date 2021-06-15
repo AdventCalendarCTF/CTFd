@@ -13,10 +13,11 @@
 			<h1 class="text-center">{{ challenge.name }}</h1>
 			<h2 class="text-center">{{ challenge.category }}</h2>
 			<h2 class="text-center">{{ challenge.type }}</h2>
-			{% set badge_state = 'badge-danger' if challenge.state == 'hidden' else 'badge-success' %}
+			{% set badge_state = 'badge-success' if challenge.user_visible else 'badge-danger' %}
+			{% set activation_date = challenge.start_date if challenge.state == "schedule" else '' %}
 			<h5>
 				<span class="badge {{ badge_state }} challenge-state">
-					{{ challenge.state }}
+					{{ challenge.state }} {{ activation_date }}
 				</span>
 			</h5>
 			<h3 class="text-center">{{ challenge.value }} points</h3>
