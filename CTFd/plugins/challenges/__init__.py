@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Blueprint
 
 from CTFd.models import (
@@ -32,6 +34,8 @@ class BaseChallenge(object):
         :return:
         """
         data = request.form or request.get_json()
+        if 'start_date' in data and data['start_date'] != '':
+            data['start_date'] = datetime.fromisoformat(data['start_date'])
 
         challenge = cls.challenge_model(**data)
 
@@ -77,6 +81,8 @@ class BaseChallenge(object):
         :return:
         """
         data = request.form or request.get_json()
+        if 'start_date' in data and data['start_date'] != '':
+            data['start_date'] = datetime.fromisoformat(data['start_date'])
         for attr, value in data.items():
             setattr(challenge, attr, value)
 

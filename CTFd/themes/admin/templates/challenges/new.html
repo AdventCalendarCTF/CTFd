@@ -74,8 +74,16 @@
 						</label>
 						<select class="form-control custom-select" name="state">
 							<option value="visible">Visible</option>
-							<option value="hidden" selected>Hidden</option>
+							<option value="hidden">Hidden</option>
+							<option value="schedule" selected>Schedule</option>
 						</select>
+					</div>
+					<div class="form-group">
+						<label>
+							Date of activation<br>
+							<small class="form-text text-muted">ISO format please : 2011-11-04T00:05:23</small>
+						</label>
+						<input type="datetime" class="form-control start_date" name="start_date">
 					</div>
 					<input id="challenge_id" type="hidden" name="challenge_id">
 					<div class="form-group">

@@ -187,7 +187,8 @@ function handleChallengeOptions(event) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        state: params.state
+        state: params.state,
+        start_date: params.start_date,
       })
     })
       .then(function(response) {

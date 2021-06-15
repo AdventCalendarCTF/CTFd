@@ -5,6 +5,7 @@ from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import column_property, validates
+from sqlalchemy.sql import func
 
 from CTFd.cache import cache
 
@@ -79,6 +80,7 @@ class Challenges(db.Model):
     type = db.Column(db.String(80))
     state = db.Column(db.String(80), nullable=False, default="visible")
     requirements = db.Column(db.JSON)
+    start_date = db.Column(db.DateTime(timezone=True), nullable=True)
 
     files = db.relationship("ChallengeFiles", backref="challenge")
     tags = db.relationship("Tags", backref="challenge")
