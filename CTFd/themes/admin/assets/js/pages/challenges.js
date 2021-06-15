@@ -51,6 +51,7 @@ function bulkEditChallenges(_event) {
           <option value="">--</option>
           <option value="visible">Visible</option>
           <option value="hidden">Hidden</option>
+          <option value="schedule">Schedule</option>
         </select>
       </div>
     </form>

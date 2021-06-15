@@ -73,13 +73,22 @@
 	<div class="form-group">
 		<label>
 			State<br>
-			<small class="form-text text-muted">Changes the state of the challenge (e.g. visible, hidden)</small>
+			<small class="form-text text-muted">Changes the state of the challenge (e.g. visible, hidden, schedule)</small>
 		</label>
 
 		<select class="form-control custom-select" name="state">
 			<option value="visible" {% if challenge.state == "visible" %}selected{% endif %}>Visible</option>
 			<option value="hidden" {% if challenge.state == "hidden" %}selected{% endif %}>Hidden</option>
+			<option value="schedule" {% if challenge.state == "schedule" %}selected{% endif %}>Schedule</option>
 		</select>
+	</div>
+
+	<div class="form-group">
+		<label>
+			Date of activation<br>
+			<small class="form-text text-muted">ISO format please : 2011-11-04T00:05:23</small>
+		</label>
+		<input type="datetime" class="form-control start_date" name="start_date" value="{{ challenge.start_date }}">
 	</div>
 	{% endblock %}
 
