@@ -12,17 +12,9 @@ from CTFd.api.v1.schemas import APIDetailedSuccessResponse, APIListSuccessRespon
 from CTFd.cache import clear_standings
 from CTFd.constants import RawEnum
 from CTFd.models import ChallengeFiles as ChallengeFilesModel
-from CTFd.models import (
-    Challenges,
-    Fails,
-    Flags,
-    Hints,
-    HintUnlocks,
-    Solves,
-    Submissions,
-    Tags,
-    db,
-)
+from CTFd.models import Challenges
+from CTFd.models import ChallengeTopics as ChallengeTopicsModel
+from CTFd.models import Fails, Flags, Hints, HintUnlocks, Solves, Submissions, Tags, db
 from CTFd.plugins.challenges import CHALLENGE_CLASSES, get_chal_class
 from CTFd.schemas.challenges import ChallengeSchema
 from CTFd.schemas.flags import FlagSchema
@@ -62,7 +54,9 @@ challenges_namespace = Namespace(
     "challenges", description="Endpoint to retrieve Challenges"
 )
 
-ChallengeModel = sqlalchemy_to_pydantic(Challenges)
+ChallengeModel = sqlalchemy_to_pydantic(
+    Challenges, include={"solves": int, "solved_by_me": bool}
+)
 TransientChallengeModel = sqlalchemy_to_pydantic(Challenges, exclude=["id"])
 
 
@@ -120,12 +114,20 @@ def _build_solves_query(extra_filters=(), admin_view=False):
         .group_by(Solves.challenge_id)
     )
     # Also gather the user's solve items which can be different from above query
-    # Even if we are a hidden user, we should see that we have solved the challenge
-    # But as a hidden user we are not included in the count
-    solve_ids = (
-        Solves.query.with_entities(Solves.challenge_id).filter(user_solved_cond).all()
-    )
-    solve_ids = {value for value, in solve_ids}
+    # For example, even if we are a hidden user, we should see that we have solved a challenge
+    # however as a hidden user we are not included in the count of the above query
+    if admin_view:
+        # If we're an admin we should show all challenges as solved to break through any requirements
+        challenges = Challenges.query.all()
+        solve_ids = {challenge.id for challenge in challenges}
+    else:
+        # If not an admin we calculate solves as normal
+        solve_ids = (
+            Solves.query.with_entities(Solves.challenge_id)
+            .filter(user_solved_cond)
+            .all()
+        )
+        solve_ids = {value for value, in solve_ids}
     return solves_q, solve_ids
 
 
@@ -218,19 +220,26 @@ class ChallengeList(Resource):
                 or_(Challenges.state == "visible", and_(Challenges.state == "schedule", Challenges.start_date < now ))
             )
         chal_q = (
-            chal_q.filter_by(**query_args).filter(*filters).order_by(Challenges.value)
+            chal_q.filter_by(**query_args)
+            .filter(*filters)
+            .order_by(Challenges.value, Challenges.id)
         )
 
         # Iterate through the list of challenges, adding to the object which
         # will be JSONified back to the client
         response = []
         tag_schema = TagSchema(view="user", many=True)
+
+        # Gather all challenge IDs so that we can determine invalid challenge prereqs
+        all_challenge_ids = {
+            c.id for c in Challenges.query.with_entities(Challenges.id).all()
+        }
         for challenge in chal_q:
             if challenge.requirements:
                 requirements = challenge.requirements.get("prerequisites", [])
                 anonymize = challenge.requirements.get("anonymize")
-                prereqs = set(requirements)
-                if user_solves >= prereqs:
+                prereqs = set(requirements).intersection(all_challenge_ids)
+                if user_solves >= prereqs or admin_view:
                     pass
                 else:
                     if anonymize:
@@ -359,6 +368,10 @@ class Challenge(Resource):
         if chal.requirements:
             requirements = chal.requirements.get("prerequisites", [])
             anonymize = chal.requirements.get("anonymize")
+            # Gather all challenge IDs so that we can determine invalid challenge prereqs
+            all_challenge_ids = {
+                c.id for c in Challenges.query.with_entities(Challenges.id).all()
+            }
             if challenges_visible():
                 user = get_current_user()
                 if user:
@@ -372,7 +385,7 @@ class Challenge(Resource):
                     # We need to handle the case where a user is viewing challenges anonymously
                     solve_ids = []
                 solve_ids = {value for value, in solve_ids}
-                prereqs = set(requirements)
+                prereqs = set(requirements).intersection(all_challenge_ids)
                 if solve_ids >= prereqs or is_admin():
                     pass
                 else:
@@ -443,7 +456,7 @@ class Challenge(Resource):
         response = chal_class.read(challenge=chal)
 
         solves_q, user_solves = _build_solves_query(
-            admin_view=is_admin(), extra_filters=(Solves.challenge_id == chal.id,)
+            extra_filters=(Solves.challenge_id == chal.id,)
         )
         # If there are no solves for this challenge ID then we have 0 rows
         maybe_row = solves_q.first()
@@ -598,7 +611,11 @@ class ChallengeAttempt(Resource):
                 .all()
             )
             solve_ids = {solve_id for solve_id, in solve_ids}
-            prereqs = set(requirements)
+            # Gather all challenge IDs so that we can determine invalid challenge prereqs
+            all_challenge_ids = {
+                c.id for c in Challenges.query.with_entities(Challenges.id).all()
+            }
+            prereqs = set(requirements).intersection(all_challenge_ids)
             if solve_ids >= prereqs:
                 pass
             else:
@@ -805,6 +822,26 @@ class ChallengeTags(Resource):
         for t in tags:
             response.append(
                 {"id": t.id, "challenge_id": t.challenge_id, "value": t.value}
+            )
+        return {"success": True, "data": response}
+
+
+@challenges_namespace.route("/<challenge_id>/topics")
+class ChallengeTopics(Resource):
+    @admins_only
+    def get(self, challenge_id):
+        response = []
+
+        topics = ChallengeTopicsModel.query.filter_by(challenge_id=challenge_id).all()
+
+        for t in topics:
+            response.append(
+                {
+                    "id": t.id,
+                    "challenge_id": t.challenge_id,
+                    "topic_id": t.topic_id,
+                    "value": t.topic.value,
+                }
             )
         return {"success": True, "data": response}
 
