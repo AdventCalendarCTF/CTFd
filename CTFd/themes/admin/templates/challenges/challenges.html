@@ -101,7 +101,7 @@
 								{% set badge_state = 'badge-success' if challenge.user_visible else 'badge-danger' %}
 								<span class="badge {{ badge_state }}">{{ challenge.state }}</span>
 							</td>
-							<td class="d-none d-md-table-cell d-lg-table-cell text-center">{{ challenge.start_date }}</td>
+							<td class="d-none d-md-table-cell d-lg-table-cell text-center">{{ challenge.start_date or '' }}</td>
 						</tr>
 					{% endfor %}
 					</tbody>

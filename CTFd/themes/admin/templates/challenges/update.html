@@ -88,7 +88,7 @@
 			Date of activation<br>
 			<small class="form-text text-muted">ISO format please : 2011-11-04T00:05:23</small>
 		</label>
-		<input type="datetime" class="form-control start_date" name="start_date" value="{{ challenge.start_date }}">
+		<input type="datetime" class="form-control start_date" name="start_date" value="{{ challenge.start_date or '' }}">
 	</div>
 	{% endblock %}
 
