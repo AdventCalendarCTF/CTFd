@@ -1,4 +1,4 @@
-from marshmallow import validate
+from marshmallow import validate, validates_schema
 from marshmallow.exceptions import ValidationError
 from marshmallow_sqlalchemy import field_for
 
@@ -66,7 +66,15 @@ class ChallengeSchema(ma.ModelSchema):
             )
         ],
     )
+    
 
     requirements = field_for(
         Challenges, "requirements", validate=[ChallengeRequirementsValidator()],
     )
+
+    @validates_schema
+    def validate_schedule_date(self, data):
+        state = data.get('state')
+        start_date = data.get('start_date', '')
+        if state == 'schedule' and start_date == '':
+            raise ValidationError('Scheduled challenges must have a date of activation')
