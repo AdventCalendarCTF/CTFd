@@ -28,6 +28,25 @@ const roots = {
       'pages/teams/private': 'assets/js/pages/teams/private.js',
     }
   },
+  'themes/advent': {
+    'css': {
+      'challenge-board': 'assets/css/challenge-board.scss',
+      'fonts': 'assets/css/fonts.scss',
+      'main': 'assets/css/main.scss',
+      'core': 'assets/css/core.scss',
+      'codemirror': 'assets/css/codemirror.scss',
+    },
+    'js': {
+      'pages/main': 'assets/js/pages/main.js',
+      'pages/setup': 'assets/js/pages/setup.js',
+      'pages/challenges': 'assets/js/pages/challenges.js',
+      'pages/scoreboard': 'assets/js/pages/scoreboard.js',
+      'pages/settings': 'assets/js/pages/settings.js',
+      'pages/stats': 'assets/js/pages/stats.js',
+      'pages/notifications': 'assets/js/pages/notifications.js',
+      'pages/teams/private': 'assets/js/pages/teams/private.js',
+    }
+  },
   'themes/admin': {
     'css': {
       'admin': 'assets/css/admin.scss',
