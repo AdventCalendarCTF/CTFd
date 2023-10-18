@@ -392,13 +392,19 @@ const loadHint = id => {
 
 window.updateChallengeBoard = update;
 /* Partie pour le calendrier de l'avent*/
-if (window.yearOfCalendar === undefined) {
-	window.yearOfCalendar = "2021";
+if (window.init.theme_settings === undefined)
+	window.init.theme_settings = {};
+
+if (window.init.theme_settings.yearOfCalendar === undefined) {
+	window.init.theme_settings.yearOfCalendar = "2023";
+}
+if (window.init.theme_settings.monthOfCalendar === undefined) {
+	window.init.theme_settings.monthOfCalendar = "11";
 }
 
 const drawCalendar = id => {
 
-	let first_december = new Date(window.yearOfCalendar, 11, 1); // Attention le mois esst indexéa partir de 0
+	let first_december = new Date(window.init.theme_settings.yearOfCalendar, window.init.theme_settings.monthOfCalendar, 1); // Attention le mois est indexé à partir de 0
 	var current_day = 1;
 	var week = 2;
 
@@ -427,7 +433,7 @@ const drawCalendar = id => {
 			} else if (current_day < 25 ) {
 				html_cal += '<td id="cal-chal-' + String(current_day).padStart(2, '0') + '" class="has-chal"><div class="pt-3 pb-3 bg-white">'+current_day+'</div></td>';
 			} else {
-				html_cal += '<td class="after-christmas no-cha "><div class="pt-3 pb-3 bg-light">'+current_day+'</div></td>';
+				html_cal += '<td class="after-christmas no-chal"><div class="pt-3 pb-3 bg-light">'+current_day+'</div></td>';
 			}
 			current_day ++;
 			
