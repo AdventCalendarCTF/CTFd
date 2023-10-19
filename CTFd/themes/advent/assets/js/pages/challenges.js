@@ -392,26 +392,30 @@ const loadHint = id => {
 
 window.updateChallengeBoard = update;
 /* Partie pour le calendrier de l'avent*/
-if (window.init.theme_settings === undefined)
+if (window.init.theme_settings === undefined || window.init.theme_settings == null)
 	window.init.theme_settings = {};
 
 if (window.init.theme_settings.yearOfCalendar === undefined) {
 	window.init.theme_settings.yearOfCalendar = "2023";
 }
 if (window.init.theme_settings.monthOfCalendar === undefined) {
-	window.init.theme_settings.monthOfCalendar = "11";
+	window.init.theme_settings.monthOfCalendar = "12";
 }
 
 const drawCalendar = id => {
 
-	let first_december = new Date(window.init.theme_settings.yearOfCalendar, window.init.theme_settings.monthOfCalendar, 1); // Attention le mois est indexé à partir de 0
+	let first_december = new Date(window.init.theme_settings.yearOfCalendar, window.init.theme_settings.monthOfCalendar - 1, 1); // Attention le mois est indexé à partir de 0
 	var current_day = 1;
 	var week = 2;
 
 	var html_cal = '<table class="table table-chal text-center"><thead><tr><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th>' +
 		'<th>Friday</th><th>Saturday</th><th>Sunday</th></tr></thead><tbody><tr id="Week1">'
+	let first_december_dof = first_december.getDay();
+	if (first_december_dof == 0) {
+		first_december_dof = 7;
+	}
 	for (i=1; i<8; i++) {
-		if ( i < first_december.getDay() ) {
+		if ( i < first_december_dof ) {
 			html_cal += '<td class="no-december no-chal"><div class="pt-3 pb-3 bg-light"></div></td>';
 		} else if ( i > 5 ) {
 			html_cal += '<td class="week-end no-chal"><div class="pt-3 pb-3 bg-light">'+current_day+'</div></td>';
