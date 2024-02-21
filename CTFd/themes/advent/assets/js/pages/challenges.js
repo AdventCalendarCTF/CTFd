@@ -401,10 +401,14 @@ if (window.init.theme_settings.yearOfCalendar === undefined) {
 if (window.init.theme_settings.monthOfCalendar === undefined) {
 	window.init.theme_settings.monthOfCalendar = "12";
 }
+if (window.init.theme_settings.lastDayOfCalendar === undefined) {
+	window.init.theme_settings.lastDayOfCalendar = "24";
+}
 
 const drawCalendar = id => {
 
 	let first_december = new Date(window.init.theme_settings.yearOfCalendar, window.init.theme_settings.monthOfCalendar - 1, 1); // Attention le mois est indexé à partir de 0
+	const last_day = new Date(window.init.theme_settings.yearOfCalendar, window.init.theme_settings.monthOfCalendar, 0).getDate();
 	var current_day = 1;
 	var week = 2;
 
@@ -427,14 +431,14 @@ const drawCalendar = id => {
 	}
 	html_cal+="</tr>";
 
-	while (current_day <= 31) {
+	while (current_day <= last_day) {
 		html_cal+='<tr id="Week'+week+'">';
 		for (i=1; i<8; i++) {
-			if (current_day > 31){
+			if (current_day > last_day){
 				html_cal += '<td class="no-december no-chal"><div class="pt-3 pb-3 bg-light"></div></td>';
 			} else if ( i > 5 ) {
 				html_cal += '<td class="week-end no-chal"><div class="pt-3 pb-3 bg-light">'+current_day+'</div></td>';
-			} else if (current_day < 25 ) {
+			} else if (current_day <= window.init.theme_settings.lastDayOfCalendar ) {
 				html_cal += '<td id="cal-chal-' + String(current_day).padStart(2, '0') + '" class="has-chal"><div class="pt-3 pb-3 bg-white">'+current_day+'</div></td>';
 			} else {
 				html_cal += '<td class="after-christmas no-chal"><div class="pt-3 pb-3 bg-light">'+current_day+'</div></td>';

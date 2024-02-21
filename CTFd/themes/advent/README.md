@@ -13,8 +13,7 @@ This theme provide a calendar allowing challenges to be displayed in this calend
 
 1. Copy advent directory in CTFd/themes
 2. In the administration console, click on "Config", then "Theme" and choose the theme named advent
-3. To set the year of the calendar, insert in the field "Theme Header"
-`<script>window.yearOfCalendar=2022</script>`
+3. To set the year of the calendar, play with the theme settings
 
 ## Future Feature
 
