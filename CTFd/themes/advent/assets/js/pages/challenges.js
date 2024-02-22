@@ -404,6 +404,9 @@ if (window.init.theme_settings.monthOfCalendar === undefined) {
 if (window.init.theme_settings.lastDayOfCalendar === undefined) {
 	window.init.theme_settings.lastDayOfCalendar = "24";
 }
+if (window.init.theme_settings.challOnWE === undefined) {
+	window.init.theme_settings.challOnWE = "false";
+}
 
 const drawCalendar = id => {
 
@@ -421,7 +424,7 @@ const drawCalendar = id => {
 	for (i=1; i<8; i++) {
 		if ( i < first_december_dof ) {
 			html_cal += '<td class="no-december no-chal"><div class="pt-3 pb-3 bg-light"></div></td>';
-		} else if ( i > 5 ) {
+		} else if ( (i > 5) && (window.init.theme_settings.challOnWE == "false")  ) {
 			html_cal += '<td class="week-end no-chal"><div class="pt-3 pb-3 bg-light">'+current_day+'</div></td>';
 			current_day ++;
 		} else {
@@ -436,7 +439,7 @@ const drawCalendar = id => {
 		for (i=1; i<8; i++) {
 			if (current_day > last_day){
 				html_cal += '<td class="no-december no-chal"><div class="pt-3 pb-3 bg-light"></div></td>';
-			} else if ( i > 5 ) {
+			} else if ((i > 5) && (window.init.theme_settings.challOnWE == "false") ) {
 				html_cal += '<td class="week-end no-chal"><div class="pt-3 pb-3 bg-light">'+current_day+'</div></td>';
 			} else if (current_day <= window.init.theme_settings.lastDayOfCalendar ) {
 				html_cal += '<td id="cal-chal-' + String(current_day).padStart(2, '0') + '" class="has-chal"><div class="pt-3 pb-3 bg-white">'+current_day+'</div></td>';
